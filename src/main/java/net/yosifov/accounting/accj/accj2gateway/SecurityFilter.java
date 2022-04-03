@@ -2,6 +2,8 @@ package net.yosifov.accounting.accj.accj2gateway;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.http.HttpHeaders;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
+import javax.crypto.SecretKey;
 import java.util.List;
 
 // https://www.programcreek.com/java-api-examples/?api=org.springframework.cloud.gateway.filter.GlobalFilter
@@ -19,6 +22,12 @@ import java.util.List;
 public class SecurityFilter implements GlobalFilter {
 
     private Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
+
+    @Value("${application.jwt.tokenPrefix}")
+    private String tokenPrefix;
+
+    @Autowired
+    private SecretKey appSecretKey;
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange,
@@ -58,7 +67,8 @@ public class SecurityFilter implements GlobalFilter {
             return null;
         }
         String bearer = authHeaderList.get(0);
-        String token = bearer.split(" ")[1];
+        String token = bearer.replace(tokenPrefix, "").trim();
+
         return token;
     }
 

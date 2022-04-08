@@ -42,22 +42,18 @@ public class SecurityFilter implements GlobalFilter {
                              GatewayFilterChain chain) {
         logger.info("Path of the request received -> {}",
                 exchange.getRequest().getPath());
+
         ServerHttpRequest request = exchange.getRequest();
         RequestPath path = request.getPath();
         String sPath = path.toString();
 
-        if (sPath.equals("/get") && false) {
-            throw new RuntimeException("Bla bla bla");
-        }
         if(sPath.equals("/api/v1/auth/login")) {
             return chain.filter(exchange);
         }
         if(sPath.equals("/api/v1/auth/refresh")) {
             return chain.filter(exchange);
         }
-        if(sPath.equals("/api/v1/auth/testRequest")) {
-            return chain.filter(exchange);
-        }
+
         if(isBad(exchange)) {
             exchange.getResponse().setStatusCode(HttpStatus.FORBIDDEN);
             return exchange.getResponse().setComplete();
@@ -92,6 +88,7 @@ public class SecurityFilter implements GlobalFilter {
             principalDataMap.put("id", id);
 
             var authorities = (List<Map<String, Object>>) claims.get("authorities");
+            System.out.println(authorities);
 
 //            Set<SimpleGrantedAuthority> simpleGrantedAuthorities = authorities.stream()
 //                    .map(m -> new SimpleGrantedAuthority((m.get("authority")).toString()))
